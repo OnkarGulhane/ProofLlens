@@ -10,6 +10,7 @@ import {
   Send,
   Sparkles,
   Scale,
+  ShieldCheck,
   ShieldAlert,
   CheckCircle2,
   AlertTriangle,
@@ -163,14 +164,21 @@ export default function WorkspaceDetailPage() {
           )}
         </div>
 
-        {/* Action Button: Cross-Doc Compare */}
+        {/* Action Buttons: Cross-Doc Compare & Benchmark Evaluation */}
         <div className="flex items-center gap-3">
           <Link
             href={`/workspaces/${workspaceId}/compare`}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-indigo-500/60 hover:bg-slate-800 text-slate-200 text-xs font-semibold transition-all shadow-sm"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-indigo-500/60 hover:bg-slate-800 text-slate-200 text-xs font-semibold transition-all shadow-sm"
           >
             <Scale className="h-4 w-4 text-indigo-400" />
             Cross-Document Compare
+          </Link>
+          <Link
+            href={`/workspaces/${workspaceId}/evaluation`}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-sky-950/40 border border-sky-800/60 hover:border-sky-500 hover:bg-sky-900/40 text-sky-200 text-xs font-semibold transition-all shadow-sm"
+          >
+            <ShieldCheck className="h-4 w-4 text-sky-400" />
+            Benchmark Evaluation
           </Link>
         </div>
       </div>

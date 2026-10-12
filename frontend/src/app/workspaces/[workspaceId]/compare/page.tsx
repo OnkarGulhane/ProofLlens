@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   XCircle,
   HelpCircle,
+  ShieldCheck,
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import {
@@ -145,13 +146,22 @@ export default function ComparePage() {
           </h1>
         </div>
 
-        <Link
-          href={`/workspaces/${workspaceId}`}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Q&A
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/workspaces/${workspaceId}`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Q&A
+          </Link>
+          <Link
+            href={`/workspaces/${workspaceId}/evaluation`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-950/40 border border-sky-800/60 hover:border-sky-500 hover:bg-sky-900/40 text-sky-200 text-xs font-semibold transition-all shadow-sm"
+          >
+            <ShieldCheck className="h-3.5 w-3.5 text-sky-400" />
+            Benchmark Evaluation
+          </Link>
+        </div>
       </div>
 
       {/* Comparison Setup Form */}

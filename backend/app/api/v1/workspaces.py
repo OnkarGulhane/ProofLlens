@@ -107,3 +107,25 @@ async def get_workspace(
         updated_at=workspace.updated_at,
         document_count=doc_count,
     )
+
+
+@router.delete(
+    "/{workspace_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete Workspace",
+)
+async def delete_workspace(
+    workspace_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db),
+):
+    """Deletes a workspace and all cascading child records."""
+    stmt = select(Workspace).where(Workspace.id == workspace_id)
+    result = await session.execute(stmt)
+    workspace = result.scalar_one_or_none()
+    if not workspace:
+        raise WorkspaceNotFoundError(str(workspace_id))
+
+    await session.delete(workspace)
+    await session.commit()
+    return None
+

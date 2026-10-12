@@ -86,3 +86,45 @@ export interface ComparisonResponse {
   findings: DocumentFinding[];
   synthesis: ComparisonSynthesis;
 }
+
+export interface EvaluationCaseResult {
+  id: string;
+  type: "POSITIVE" | "NEGATIVE" | "INJECTION";
+  query: string;
+  status: "PASS" | "FAIL";
+  retrieval_hit: boolean | null;
+  is_abstained: boolean;
+  citations_count: number;
+  latency_ms: number;
+  notes: string;
+}
+
+export interface EvaluationSummary {
+  total_positive_cases: number;
+  retrieval_hits: number;
+  total_citations: number;
+  valid_citations: number;
+  total_negative_cases: number;
+  correct_abstentions: number;
+}
+
+export interface EvaluationRunRequest {
+  suite_name?: string;
+}
+
+export interface EvaluationRun {
+  id: string;
+  workspace_id: string;
+  suite_name: string;
+  total_cases: number;
+  passed_cases: number;
+  retrieval_hit_rate: number;
+  citation_validity_rate: number;
+  abstention_accuracy: number;
+  raw_results: {
+    cases: EvaluationCaseResult[];
+    summary: EvaluationSummary;
+  };
+  created_at: string;
+}
+

@@ -28,6 +28,11 @@ from app.schemas.comparison import (
     ComparisonSynthesis,
     ComparisonResponse,
 )
+from app.schemas.evaluation import (
+    EvaluationCaseResult,
+    EvaluationRunRequest,
+    EvaluationRunResponse,
+)
 
 __all__ = [
     "WorkspaceCreate",
@@ -48,4 +53,7 @@ __all__ = [
     "DocumentFinding",
     "ComparisonSynthesis",
     "ComparisonResponse",
+    "EvaluationCaseResult",
+    "EvaluationRunRequest",
+    "EvaluationRunResponse",
 ]

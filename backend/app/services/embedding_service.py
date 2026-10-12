@@ -43,19 +43,38 @@ class MockEmbeddingProvider(EmbeddingProvider):
     def dimension(self) -> int:
         return self._dimension
 
-    def _generate_deterministic_vector(self, text: str) -> List[float]:
-        """Generates an L2-normalized float vector based deterministically on input text."""
-        seed_int = int(hashlib.sha256(text.encode("utf-8")).hexdigest()[:16], 16)
+    def _generate_word_vector(self, word: str) -> List[float]:
+        """Generates an unnormalized random Gaussian vector seeded deterministically by word token."""
+        seed_int = int(hashlib.sha256(word.encode("utf-8")).hexdigest()[:16], 16)
         rng = random.Random(seed_int)
+        return [rng.gauss(0.0, 1.0) for _ in range(self._dimension)]
 
-        # Generate base random components
-        raw_vector = [rng.gauss(0.0, 1.0) for _ in range(self._dimension)]
+    def _generate_deterministic_vector(self, text: str) -> List[float]:
+        """Generates an L2-normalized float vector based deterministically on input text tokens."""
+        import re
+        stop_words = {
+            "a", "an", "the", "in", "on", "at", "to", "for", "of", "with", "by", "from",
+            "is", "are", "was", "were", "what", "who", "how", "it", "its"
+        }
+        raw_tokens = re.findall(r"\w+", text.lower())
+        tokens = [w.rstrip("s") for w in raw_tokens if w not in stop_words]
+        if not tokens:
+            tokens = ["empty"]
+
+        base_vec = self._generate_word_vector("__english_base_semantic__")
+        scale = 0.5 * math.sqrt(len(tokens))
+
+        acc = [scale * base_vec[i] for i in range(self._dimension)]
+        for word in tokens:
+            w_vec = self._generate_word_vector(word)
+            for i in range(self._dimension):
+                acc[i] += w_vec[i]
 
         # L2-normalize vector to unit length
-        squared_sum = sum(x * x for x in raw_vector)
+        squared_sum = sum(x * x for x in acc)
         norm = math.sqrt(squared_sum) if squared_sum > 0 else 1.0
 
-        return [x / norm for x in raw_vector]
+        return [x / norm for x in acc]
 
     async def embed_texts(self, texts: List[str]) -> List[List[float]]:
         """Generates deterministic embeddings for a batch of texts."""

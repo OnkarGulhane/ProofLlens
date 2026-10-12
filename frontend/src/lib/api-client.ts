@@ -4,6 +4,8 @@ import {
   DocumentDetail,
   QueryResponse,
   ComparisonResponse,
+  EvaluationRun,
+  EvaluationRunRequest,
 } from "@/types/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -51,6 +53,12 @@ class ApiClient {
 
   async getWorkspace(id: string): Promise<Workspace> {
     return this.request<Workspace>(`/workspaces/${id}`);
+  }
+
+  async deleteWorkspace(id: string): Promise<void> {
+    return this.request<void>(`/workspaces/${id}`, {
+      method: "DELETE",
+    });
   }
 
   // Documents
@@ -115,6 +123,29 @@ class ApiClient {
       }),
     });
   }
+
+  // Benchmark Evaluations
+  async runEvaluation(
+    workspaceId: string,
+    payload?: EvaluationRunRequest
+  ): Promise<EvaluationRun> {
+    return this.request<EvaluationRun>(`/workspaces/${workspaceId}/evaluations/run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload ?? {}),
+    });
+  }
+
+  async listEvaluations(workspaceId: string): Promise<EvaluationRun[]> {
+    return this.request<EvaluationRun[]>(`/workspaces/${workspaceId}/evaluations`);
+  }
+
+  async getEvaluation(workspaceId: string, evaluationId: string): Promise<EvaluationRun> {
+    return this.request<EvaluationRun>(
+      `/workspaces/${workspaceId}/evaluations/${evaluationId}`
+    );
+  }
 }
 
 export const apiClient = new ApiClient();
+

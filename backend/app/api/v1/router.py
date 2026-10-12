@@ -7,6 +7,7 @@ from app.api.v1.documents import router as documents_router
 from app.api.v1.retrievals import router as retrievals_router
 from app.api.v1.queries import router as queries_router
 from app.api.v1.comparisons import router as comparisons_router
+from app.api.v1.evaluations import router as evaluations_router
 
 api_v1_router = APIRouter()
 
@@ -17,3 +18,5 @@ api_v1_router.include_router(documents_router)
 api_v1_router.include_router(retrievals_router)
 api_v1_router.include_router(queries_router)
 api_v1_router.include_router(comparisons_router)
+api_v1_router.include_router(evaluations_router)
+
