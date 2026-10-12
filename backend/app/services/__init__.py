@@ -22,6 +22,7 @@ from app.services.qa_service import (
     get_llm_provider,
     ABSTENTION_MESSAGE,
 )
+from app.services.comparison_service import ComparisonService
 
 __all__ = [
     "DocumentService",
@@ -42,4 +43,5 @@ __all__ = [
     "OpenAILLMProvider",
     "get_llm_provider",
     "ABSTENTION_MESSAGE",
+    "ComparisonService",
 ]

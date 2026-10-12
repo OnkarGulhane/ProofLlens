@@ -21,6 +21,13 @@ from app.schemas.query import (
     CitationDTO,
     QueryResponse,
 )
+from app.schemas.comparison import (
+    ConsensusStatus,
+    ComparisonRequest,
+    DocumentFinding,
+    ComparisonSynthesis,
+    ComparisonResponse,
+)
 
 __all__ = [
     "WorkspaceCreate",
@@ -36,4 +43,9 @@ __all__ = [
     "QueryRequest",
     "CitationDTO",
     "QueryResponse",
+    "ConsensusStatus",
+    "ComparisonRequest",
+    "DocumentFinding",
+    "ComparisonSynthesis",
+    "ComparisonResponse",
 ]
