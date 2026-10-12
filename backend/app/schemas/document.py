@@ -26,6 +26,7 @@ class DocumentResponse(BaseModel):
     filename: str
     file_size_bytes: int
     total_pages: int
+    chunk_count: int = 0
     status: str
     error_message: Optional[str] = None
     created_at: datetime

@@ -78,12 +78,19 @@ async def get_document(
     if not document:
         raise DocumentNotFoundError(str(document_id))
 
+    from app.models.chunk import DocumentChunk
+    from sqlalchemy import func
+    count_stmt = select(func.count(DocumentChunk.id)).where(DocumentChunk.document_id == document_id)
+    count_res = await session.execute(count_stmt)
+    chunk_count = count_res.scalar_one()
+
     return DocumentDetailResponse(
         id=document.id,
         workspace_id=document.workspace_id,
         filename=document.filename,
         file_size_bytes=document.file_size_bytes,
         total_pages=document.total_pages,
+        chunk_count=chunk_count,
         status=document.status,
         error_message=document.error_message,
         created_at=document.created_at,

@@ -165,10 +165,36 @@ class DocumentService:
             )
             session.add(page_record)
 
+        # 8. Generate Chunks and Embeddings (Phase 4)
+        from app.services.chunking_service import ChunkingService
+        from app.services.embedding_service import get_embedding_provider
+        from app.models.chunk import DocumentChunk
+
+        chunks = ChunkingService.chunk_document_pages(extracted_pages)
+        if chunks:
+            chunk_texts = [c.content for c in chunks]
+            embedding_provider = get_embedding_provider()
+            embeddings = await embedding_provider.embed_texts(chunk_texts)
+
+            for chunk_item, vector in zip(chunks, embeddings):
+                chunk_record = DocumentChunk(
+                    id=uuid.uuid4(),
+                    document_id=doc_id,
+                    workspace_id=workspace_id,
+                    page_number=chunk_item.page_number,
+                    chunk_index=chunk_item.chunk_index,
+                    content=chunk_item.content,
+                    token_count=chunk_item.token_count,
+                    embedding=vector,
+                )
+                session.add(chunk_record)
+
         await session.commit()
         await session.refresh(document)
+        # Attach runtime chunk_count attribute for schema serialization
+        document.chunk_count = len(chunks)
         logger.info(
-            f"Successfully ingested document '{filename}' (ID: {doc_id}) with {total_pages} pages into workspace {workspace_id}."
+            f"Successfully ingested document '{filename}' (ID: {doc_id}) with {total_pages} pages and {len(chunks)} embedded chunks into workspace {workspace_id}."
         )
         return document
 
@@ -178,14 +204,23 @@ class DocumentService:
         session: AsyncSession,
         workspace_id: uuid.UUID,
     ) -> List[Document]:
-        """Lists all documents belonging to a workspace."""
+        """Lists all documents belonging to a workspace with their chunk counts."""
+        from sqlalchemy import func
+        from app.models.chunk import DocumentChunk
+
         stmt = (
-            select(Document)
+            select(Document, func.count(DocumentChunk.id).label("chunk_count"))
+            .outerjoin(DocumentChunk, Document.id == DocumentChunk.document_id)
             .where(Document.workspace_id == workspace_id)
+            .group_by(Document.id)
             .order_by(Document.created_at.desc())
         )
         result = await session.execute(stmt)
-        return list(result.scalars().all())
+        docs = []
+        for doc, count in result.all():
+            doc.chunk_count = count
+            docs.append(doc)
+        return docs
 
     @classmethod
     async def get_document(
@@ -194,7 +229,10 @@ class DocumentService:
         workspace_id: uuid.UUID,
         document_id: uuid.UUID,
     ) -> Document:
-        """Retrieves a single document with its pages."""
+        """Retrieves a single document with its pages and chunk count."""
+        from sqlalchemy import func
+        from app.models.chunk import DocumentChunk
+
         stmt = select(Document).where(
             Document.id == document_id,
             Document.workspace_id == workspace_id,
@@ -203,6 +241,11 @@ class DocumentService:
         document = result.scalar_one_or_none()
         if not document:
             raise DocumentNotFoundError(str(document_id))
+
+        # Query chunk count
+        count_stmt = select(func.count(DocumentChunk.id)).where(DocumentChunk.document_id == document_id)
+        count_res = await session.execute(count_stmt)
+        document.chunk_count = count_res.scalar_one()
         return document
 
     @classmethod
