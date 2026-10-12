@@ -16,3 +16,11 @@ async def async_client():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client
+
+
+@pytest.fixture(autouse=True)
+async def cleanup_database_engine():
+    """Ensure all pooled asyncpg connections are cleanly disposed before event loop teardown."""
+    yield
+    from app.core.database import engine
+    await engine.dispose()

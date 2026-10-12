@@ -1,5 +1,6 @@
 """Health and operational readiness check endpoints."""
 
+import os
 from datetime import datetime, timezone
 from typing import Dict, Any
 from fastapi import APIRouter, status
@@ -50,17 +51,18 @@ async def get_health() -> HealthResponse:
 )
 async def get_ready() -> ReadyResponse:
     """Returns operational readiness of the application components."""
-    # In Phase 1, we verify configuration and storage accessibility
-    import os
+    from app.core.database import check_database_connection
     storage_accessible = os.path.exists(settings.STORAGE_DIR) or os.makedirs(settings.STORAGE_DIR, exist_ok=True) is None
+    db_connected = await check_database_connection()
 
     checks = {
         "configuration": "loaded",
         "storage": "accessible" if storage_accessible else "unavailable",
+        "database": "connected" if db_connected else "unreachable",
     }
 
     return ReadyResponse(
-        status="ready",
+        status="ready" if (storage_accessible and db_connected) else "degraded",
         checks=checks,
         timestamp=datetime.now(timezone.utc),
     )
