@@ -10,6 +10,12 @@ from app.schemas.document import (
     DocumentPageResponse,
     DocumentDetailResponse,
 )
+from app.schemas.chunk import DocumentChunkResponse
+from app.schemas.retrieval import (
+    RetrievalQueryRequest,
+    RetrievedChunkResponse,
+    RetrievalQueryResponse,
+)
 
 __all__ = [
     "WorkspaceCreate",
@@ -18,4 +24,8 @@ __all__ = [
     "DocumentResponse",
     "DocumentPageResponse",
     "DocumentDetailResponse",
+    "DocumentChunkResponse",
+    "RetrievalQueryRequest",
+    "RetrievedChunkResponse",
+    "RetrievalQueryResponse",
 ]

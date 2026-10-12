@@ -8,6 +8,7 @@ from app.services.embedding_service import (
     OpenAIEmbeddingProvider,
     get_embedding_provider,
 )
+from app.services.retrieval_service import RetrievalService, RetrievedChunk
 
 __all__ = [
     "DocumentService",
@@ -17,4 +18,6 @@ __all__ = [
     "MockEmbeddingProvider",
     "OpenAIEmbeddingProvider",
     "get_embedding_provider",
+    "RetrievalService",
+    "RetrievedChunk",
 ]

@@ -38,6 +38,8 @@ htmlcov/
 # Local Storage
 storage/uploads/*
 !storage/uploads/.gitkeep
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
 
 # Node / Next.js
 node_modules/
