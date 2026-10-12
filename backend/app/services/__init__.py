@@ -9,6 +9,19 @@ from app.services.embedding_service import (
     get_embedding_provider,
 )
 from app.services.retrieval_service import RetrievalService, RetrievedChunk
+from app.services.citation_service import (
+    CitationService,
+    ParsedCitation,
+    VerifiedCitation,
+)
+from app.services.qa_service import (
+    QAService,
+    LLMProvider,
+    MockLLMProvider,
+    OpenAILLMProvider,
+    get_llm_provider,
+    ABSTENTION_MESSAGE,
+)
 
 __all__ = [
     "DocumentService",
@@ -20,4 +33,13 @@ __all__ = [
     "get_embedding_provider",
     "RetrievalService",
     "RetrievedChunk",
+    "CitationService",
+    "ParsedCitation",
+    "VerifiedCitation",
+    "QAService",
+    "LLMProvider",
+    "MockLLMProvider",
+    "OpenAILLMProvider",
+    "get_llm_provider",
+    "ABSTENTION_MESSAGE",
 ]

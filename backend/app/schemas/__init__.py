@@ -16,6 +16,11 @@ from app.schemas.retrieval import (
     RetrievedChunkResponse,
     RetrievalQueryResponse,
 )
+from app.schemas.query import (
+    QueryRequest,
+    CitationDTO,
+    QueryResponse,
+)
 
 __all__ = [
     "WorkspaceCreate",
@@ -28,4 +33,7 @@ __all__ = [
     "RetrievalQueryRequest",
     "RetrievedChunkResponse",
     "RetrievalQueryResponse",
+    "QueryRequest",
+    "CitationDTO",
+    "QueryResponse",
 ]
