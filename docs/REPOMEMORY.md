@@ -175,6 +175,7 @@ If zero chunks pass the relevance threshold, the engine aborts LLM generation im
 | `65e72be` | `feat(config): add automatic asyncpg URL scheme adapter for cloud postgres databases` |
 | `251d55c` | `feat(database): configure statement_cache_size=0 for Supabase connection poolers` |
 | `b386907` | `fix(cors): add allow_origin_regex wildcard to ensure universal CORS compatibility with Vercel` |
+| `51c48e2` | `docs(production): document Phase 11 production deployment on Supabase, Render, and Vercel` |
 
 ---
 
