@@ -35,24 +35,32 @@ async def cleanup_database_engine():
     await engine.dispose()
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def cleanup_test_workspaces_after_session():
+def pytest_sessionfinish(session, exitstatus):
     """Clean up any temporary test workspaces created during test runs."""
-    yield
-    from app.core.database import AsyncSessionLocal
-    from app.models.workspace import Workspace
-    from sqlalchemy import select
-    test_titles = {
-        "Single Doc Workspace", "Comparison Workspace", "Primary Retrieval Workspace",
-        "Abstention Workspace", "Q&A Pipeline Workspace", "Vector Persistence Workspace",
-        "Rejection Workspace", "Ingestion Integration Workspace", "Isolated Empty Workspace",
-        "Prompt Injection Defense Workspace"
-    }
+    import asyncio
+
+    async def _cleanup():
+        from app.core.database import AsyncSessionLocal, engine
+        from app.models.workspace import Workspace
+        from sqlalchemy import select
+        test_titles = {
+            "Single Doc Workspace", "Comparison Workspace", "Primary Retrieval Workspace",
+            "Abstention Workspace", "Q&A Pipeline Workspace", "Vector Persistence Workspace",
+            "Rejection Workspace", "Ingestion Integration Workspace", "Isolated Empty Workspace",
+            "Prompt Injection Defense Workspace"
+        }
+        try:
+            async with AsyncSessionLocal() as db_session:
+                res = await db_session.execute(select(Workspace).where(Workspace.title.in_(test_titles)))
+                for ws in res.scalars().all():
+                    await db_session.delete(ws)
+                await db_session.commit()
+        except Exception:
+            pass
+        finally:
+            await engine.dispose()
+
     try:
-        async with AsyncSessionLocal() as session:
-            res = await session.execute(select(Workspace).where(Workspace.title.in_(test_titles)))
-            for ws in res.scalars().all():
-                await session.delete(ws)
-            await session.commit()
+        asyncio.run(_cleanup())
     except Exception:
         pass

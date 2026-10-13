@@ -19,7 +19,7 @@ from app.models.evaluation import EvaluationRun
 from app.schemas.evaluation import EvaluationRunResponse, EvaluationCaseResult
 from app.services.document_service import DocumentService
 from app.services.retrieval_service import RetrievalService
-from app.services.qa_service import QAService, MockLLMProvider
+from app.services.qa_service import QAService, MockLLMProvider, LLMProvider, get_llm_provider
 
 
 DEFAULT_DATASET_PATH = os.path.join(
@@ -108,6 +108,7 @@ class EvaluationService:
         workspace_id: uuid.UUID,
         dataset_path: Optional[str] = None,
         custom_dataset: Optional[Dict[str, Any]] = None,
+        llm_provider: Optional[LLMProvider] = None,
     ) -> EvaluationRun:
         """
         Executes the benchmark evaluation suite against the specified workspace.
@@ -144,7 +145,7 @@ class EvaluationService:
 
         passed_cases = 0
 
-        mock_llm = MockLLMProvider()
+        active_llm = llm_provider or get_llm_provider()
 
         # 3. Iterate through benchmark cases
         for case in test_cases:
@@ -185,7 +186,7 @@ class EvaluationService:
                 question=query,
                 similarity_threshold=0.40,
                 top_k=5,
-                llm_provider=mock_llm,
+                llm_provider=active_llm,
             )
 
             latency_ms = round((time.perf_counter() - t0) * 1000, 2)
