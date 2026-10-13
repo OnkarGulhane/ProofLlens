@@ -134,11 +134,80 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         return results[0]
 
 
+class GeminiEmbeddingProvider(EmbeddingProvider):
+    """Generates dense vector embeddings using Google Gemini text-embedding-004."""
+
+    def __init__(self):
+        self._api_key = settings.GEMINI_API_KEY
+        self._model = settings.GEMINI_EMBEDDING_MODEL
+        self._dim = settings.EMBEDDING_DIMENSIONS
+        self._client = httpx.AsyncClient(timeout=30.0)
+
+    @property
+    def dimension(self) -> int:
+        return self._dim
+
+    def _normalize_and_pad(self, vector: List[float]) -> List[float]:
+        """Ensures vector is unit-normalized and matches target dimensionality."""
+        if len(vector) > self._dim:
+            vector = vector[: self._dim]
+        elif len(vector) < self._dim:
+            vector = vector + [0.0] * (self._dim - len(vector))
+
+        norm = math.sqrt(sum(x * x for x in vector))
+        if norm > 0:
+            return [x / norm for x in vector]
+        return vector
+
+    async def embed_texts(self, texts: List[str]) -> List[List[float]]:
+        """Calls Google Gemini batchEmbedContents API."""
+        if not self._api_key:
+            raise ValueError("GEMINI_API_KEY is not configured.")
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self._model}:batchEmbedContents"
+        headers = {
+            "x-goog-api-key": self._api_key,
+            "Content-Type": "application/json",
+        }
+
+        batch_size = 50
+        all_embeddings: List[List[float]] = []
+
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i : i + batch_size]
+            requests = [
+                {
+                    "model": f"models/{self._model}",
+                    "content": {"parts": [{"text": t}]},
+                    "outputDimensionality": self._dim,
+                }
+                for t in batch
+            ]
+            payload = {"requests": requests}
+            response = await self._client.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            raw_embeddings = data.get("embeddings", [])
+            for item in raw_embeddings:
+                all_embeddings.append(self._normalize_and_pad(item.get("values", [])))
+
+        return all_embeddings
+
+    async def embed_query(self, query: str) -> List[float]:
+        """Embeds a single search query string."""
+        results = await self.embed_texts([query])
+        return results[0]
+
+
 def get_embedding_provider() -> EmbeddingProvider:
     """Factory function providing the configured embedding provider."""
+    if settings.GEMINI_API_KEY and (settings.LLM_PROVIDER.lower() == "gemini" or not settings.OPENAI_API_KEY):
+        logger.info(f"Using GeminiEmbeddingProvider ({settings.GEMINI_EMBEDDING_MODEL})")
+        return GeminiEmbeddingProvider()
+
     if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY.startswith("sk-"):
         logger.info(f"Using OpenAIEmbeddingProvider ({settings.EMBEDDING_MODEL})")
         return OpenAIEmbeddingProvider()
 
-    logger.info("OPENAI_API_KEY not set or invalid; using MockEmbeddingProvider for offline operation.")
+    logger.info("No external AI keys set or valid; using MockEmbeddingProvider for offline operation.")
     return MockEmbeddingProvider(dimension=settings.EMBEDDING_DIMENSIONS)

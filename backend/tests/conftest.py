@@ -19,6 +19,15 @@ async def async_client():
 
 
 @pytest.fixture(autouse=True)
+def mock_ai_settings(monkeypatch):
+    """Ensure pytest tests run with mock AI providers deterministically offline."""
+    from app.core.config import settings
+    monkeypatch.setattr(settings, "GEMINI_API_KEY", "")
+    monkeypatch.setattr(settings, "OPENAI_API_KEY", "")
+    monkeypatch.setattr(settings, "LLM_PROVIDER", "mock")
+
+
+@pytest.fixture(autouse=True)
 async def cleanup_database_engine():
     """Ensure all pooled asyncpg connections are cleanly disposed before event loop teardown."""
     yield

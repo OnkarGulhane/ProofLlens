@@ -88,13 +88,60 @@ class OpenAILLMProvider(LLMProvider):
         return data["choices"][0]["message"]["content"].strip()
 
 
+class GeminiLLMProvider(LLMProvider):
+    """Google Gemini generative completion client (e.g. gemini-1.5-flash)."""
+
+    def __init__(self):
+        self._api_key = settings.GEMINI_API_KEY
+        self._model = settings.GEMINI_MODEL
+        self._client = httpx.AsyncClient(timeout=45.0)
+
+    async def generate_response(self, system_prompt: str, user_prompt: str) -> str:
+        if not self._api_key:
+            raise ValueError("GEMINI_API_KEY is not configured.")
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self._model}:generateContent"
+        headers = {
+            "x-goog-api-key": self._api_key,
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [{"text": user_prompt}],
+                }
+            ],
+            "systemInstruction": {
+                "parts": [{"text": system_prompt}]
+            },
+            "generationConfig": {
+                "temperature": 0.0,
+            },
+        }
+        response = await self._client.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        candidates = data.get("candidates", [])
+        if not candidates:
+            return ABSTENTION_MESSAGE
+        parts = candidates[0].get("content", {}).get("parts", [])
+        if not parts:
+            return ABSTENTION_MESSAGE
+        return parts[0].get("text", "").strip()
+
+
 def get_llm_provider() -> LLMProvider:
     """Factory function providing the configured LLM provider."""
+    if settings.GEMINI_API_KEY and (settings.LLM_PROVIDER.lower() == "gemini" or not settings.OPENAI_API_KEY):
+        logger.info(f"Using GeminiLLMProvider ({settings.GEMINI_MODEL})")
+        return GeminiLLMProvider()
+
     if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY.startswith("sk-"):
         logger.info(f"Using OpenAILLMProvider ({settings.OPENAI_MODEL})")
         return OpenAILLMProvider()
 
-    logger.info("OPENAI_API_KEY not configured; using MockLLMProvider for offline execution.")
+    logger.info("No external LLM keys configured; using MockLLMProvider for offline execution.")
     return MockLLMProvider()
 
 

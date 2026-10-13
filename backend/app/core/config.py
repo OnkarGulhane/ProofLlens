@@ -51,14 +51,19 @@ class Settings(BaseSettings):
     STORAGE_DIR: str = "storage/uploads"
     MAX_UPLOAD_SIZE_BYTES: int = 10 * 1024 * 1024  # 10MB
 
-    # AI Configuration (For subsequent phases)
-    LLM_PROVIDER: str = "openai"
+    # AI Configuration
+    LLM_PROVIDER: str = "gemini"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o-mini"
     EMBEDDING_MODEL: str = "text-embedding-3-small"
     EMBEDDING_DIMENSIONS: int = 1536
     SIMILARITY_THRESHOLD_DEFAULT: float = 0.65
     TOP_K_DEFAULT: int = 5
+
+    # Google Gemini Configuration
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-3.8-flash"
+    GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
 
 settings = Settings()
