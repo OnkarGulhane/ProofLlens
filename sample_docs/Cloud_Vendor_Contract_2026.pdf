@@ -1,0 +1,81 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 2
+/Kids [ 4 0 R 5 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents <<
+/Length 435
+>>
+stream
+BT /F1 12 Tf 50 720 Td 18 TL (Master Services Agreement - Cloud Infrastructure 2026) ' (Article 1: Scope of Services and Availability SLA) ' (Provider guarantees minimum monthly platform availability of 99.95 percent uptime.) ' (Scheduled maintenance must occur exclusively on Sundays between 02:00 AM and 05:00 AM UTC.) ' (If uptime drops below 99.0 percent, Client is entitled to a 20 percent service credit on monthly billing.) ' ET
+endstream
+>>
+endobj
+5 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents <<
+/Length 482
+>>
+stream
+BT /F1 12 Tf 50 720 Td 18 TL (Article 2: Fees, Invoicing and Termination for Convenience) ' (Annual licensing fee is fixed at 120,000 USD billed in equal quarterly increments of 30,000 USD.) ' (Payment terms are Net 30 days from invoice receipt. Late payments incur 1.5 percent interest per month.) ' (Either party may terminate this agreement for convenience upon 60 days advance written notice.) ' (Governing law is the State of California with arbitration in San Francisco.) ' ET
+endstream
+>>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000015 00000 n 
+0000000054 00000 n 
+0000000119 00000 n 
+0000000168 00000 n 
+0000000814 00000 n 
+trailer
+<<
+/Size 6
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+1507
+%%EOF
