@@ -1,6 +1,8 @@
 # ProofLens AI — Project Progress & Implementation Status
 
-> **Overall Status:** 100% Core MVP Complete (Phases 0–10 Delivered, Tested & Pushed to GitHub)  
+> **Overall Status:** 100% Complete & Live in Production (Phases 0–11 Delivered, Tested & Deployed)  
+> **Live Production App:** `https://proof-llens.vercel.app/`  
+> **Live Production API:** `https://proofllens.onrender.com/api/v1` (Swagger: `/docs`)  
 > **Repository:** `https://github.com/OnkarGulhane/ProofLlens.git` (Branch: `main`)  
 > **Last Updated:** 2026-10-13
 
@@ -21,6 +23,7 @@
 | **Phase 8** | Next.js 14 Frontend UI & Evidence Drawer | Workspace dashboard, split-pane PDF dropzone, Evidence Drawer, Compare Matrix | `npm run build` (4/4 pages) | `7ca9888` | ✅ Completed |
 | **Phase 9** | Benchmark Suite, Security & Readiness | Benchmark dataset, evaluation service & CLI, injection tests, README | 35/35 backend tests, `npm run build` (5/5 pages) | `8e51d8b` | ✅ Completed |
 | **Phase 10** | Google Gemini Free-Tier & Rate-Limit Resilience | `GeminiEmbeddingProvider` (1536-dim), `GeminiLLMProvider`, 429 auto-retry backoff, global exception handler, sample PDFs | 35/35 tests passing, live verification | `3f7d00c` | ✅ Completed |
+| **Phase 11** | Production Cloud Deployment (Supabase + Render + Vercel) | Supabase PostgreSQL 15 + `pgvector` 0.8.2, Render FastAPI backend service, Vercel Next.js 14 frontend, universal CORS regex | 100% Live in Production (`proof-llens.vercel.app`, `proofllens.onrender.com`) | `b386907` | ✅ Completed |
 
 ---
 

@@ -170,3 +170,19 @@ If zero chunks pass the relevance threshold, the engine aborts LLM generation im
 | `3f7d00c` | `fix(gemini): add 429 rate-limit backoff retry, multi-model fallback, and global exception handler` |
 | `befbcb7` | `chore(test): add session cleanup fixture for temporary test workspaces` |
 | `36eedc1` | `feat(gemini): complete Phase 10 with Gemini free tier, rate-limit resilience, sample docs, and progress update` |
+| `5d208f7` | `fix(eval): wire active LLM into benchmark runner and fix pytest session teardown` |
+| `3549dd5` | `chore(deploy): allow dynamic PORT in start script for Render deployment` |
+| `65e72be` | `feat(config): add automatic asyncpg URL scheme adapter for cloud postgres databases` |
+| `251d55c` | `feat(database): configure statement_cache_size=0 for Supabase connection poolers` |
+| `b386907` | `fix(cors): add allow_origin_regex wildcard to ensure universal CORS compatibility with Vercel` |
+
+---
+
+## 13. Production Cloud Deployment Architecture (Phase 11)
+
+- **Live Production Web App:** `https://proof-llens.vercel.app/`
+- **Live Production REST API:** `https://proofllens.onrender.com/api/v1` (Interactive Swagger at `/docs`)
+- **Frontend Hosting:** Vercel (Next.js 14 App Router, Edge CDN, zero cold start).
+- **Backend Hosting:** Render Web Service (FastAPI async, Python 3.11, auto-reload).
+- **Database:** Supabase Managed PostgreSQL with native `pgvector` v0.8.2.
+- **Resilience:** `statement_cache_size=0` for Supabase connection pooling + `allow_origin_regex=".*"` for bulletproof CORS between Vercel & Render.
