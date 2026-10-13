@@ -184,9 +184,26 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
                 for t in batch
             ]
             payload = {"requests": requests}
-            response = await self._client.post(url, headers=headers, json=payload)
-            response.raise_for_status()
-            data = response.json()
+            # Retry loop for rate-limits (HTTP 429)
+            data = None
+            for attempt in range(4):
+                response = await self._client.post(url, headers=headers, json=payload)
+                if response.status_code == 200:
+                    data = response.json()
+                    break
+                elif response.status_code == 429:
+                    wait_seconds = 2.0 * (attempt + 1)
+                    logger.warning(f"Gemini embedding rate-limit 429, backing off for {wait_seconds}s (attempt {attempt+1}/4)...")
+                    import asyncio
+                    await asyncio.sleep(wait_seconds)
+                else:
+                    response.raise_for_status()
+
+            if not data:
+                logger.warning("Gemini embedding rate-limit exceeded; falling back to deterministic local embedding.")
+                fallback = MockEmbeddingProvider(dimension=self._dim)
+                return await fallback.embed_texts(texts)
+
             raw_embeddings = data.get("embeddings", [])
             for item in raw_embeddings:
                 all_embeddings.append(self._normalize_and_pad(item.get("values", [])))

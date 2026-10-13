@@ -48,6 +48,15 @@ def create_application() -> FastAPI:
     # Global Exception Handlers
     app.add_exception_handler(ProofLensException, prooflens_exception_handler)
 
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request, exc):
+        logger.error(f"Unhandled server error: {exc}", exc_info=True)
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Server processing error: {str(exc)}"},
+        )
+
     # Include API Routers
     app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 

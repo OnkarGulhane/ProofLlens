@@ -89,7 +89,7 @@ class OpenAILLMProvider(LLMProvider):
 
 
 class GeminiLLMProvider(LLMProvider):
-    """Google Gemini generative completion client (e.g. gemini-1.5-flash)."""
+    """Google Gemini generative completion client with fast fallback resilience."""
 
     def __init__(self):
         self._api_key = settings.GEMINI_API_KEY
@@ -100,7 +100,13 @@ class GeminiLLMProvider(LLMProvider):
         if not self._api_key:
             raise ValueError("GEMINI_API_KEY is not configured.")
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self._model}:generateContent"
+        # Candidate models to try in order of speed and stability
+        candidate_models = [self._model]
+        fallback_models = ["gemini-flash-lite-latest", "gemini-3.1-flash-lite-preview"]
+        for fm in fallback_models:
+            if fm not in candidate_models:
+                candidate_models.append(fm)
+
         headers = {
             "x-goog-api-key": self._api_key,
             "Content-Type": "application/json",
@@ -119,16 +125,40 @@ class GeminiLLMProvider(LLMProvider):
                 "temperature": 0.0,
             },
         }
-        response = await self._client.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        data = response.json()
-        candidates = data.get("candidates", [])
-        if not candidates:
-            return ABSTENTION_MESSAGE
-        parts = candidates[0].get("content", {}).get("parts", [])
-        if not parts:
-            return ABSTENTION_MESSAGE
-        return parts[0].get("text", "").strip()
+
+        last_error = None
+        for model in candidate_models:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+            for attempt in range(3):
+                try:
+                    response = await self._client.post(url, headers=headers, json=payload)
+                    if response.status_code == 200:
+                        data = response.json()
+                        candidates = data.get("candidates", [])
+                        if not candidates:
+                            return ABSTENTION_MESSAGE
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if not parts:
+                            return ABSTENTION_MESSAGE
+                        return parts[0].get("text", "").strip()
+                    elif response.status_code == 429:
+                        wait_seconds = 2.0 * (attempt + 1)
+                        logger.warning(f"Gemini model {model} rate limited (429), backing off for {wait_seconds}s (attempt {attempt+1}/3)...")
+                        import asyncio
+                        await asyncio.sleep(wait_seconds)
+                    else:
+                        logger.warning(f"Gemini model {model} returned status {response.status_code}: {response.text[:120]}")
+                        break
+                except Exception as e:
+                    logger.warning(f"Gemini model {model} request failed ({e}); trying next candidate...")
+                    last_error = e
+                    break
+
+        if last_error:
+            logger.error(f"All Gemini candidate models failed: {last_error}")
+            return f"Unable to generate response due to AI service timeout: {str(last_error)}"
+
+        return ABSTENTION_MESSAGE
 
 
 def get_llm_provider() -> LLMProvider:

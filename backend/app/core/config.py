@@ -62,7 +62,7 @@ class Settings(BaseSettings):
 
     # Google Gemini Configuration
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-3.8-flash"
+    GEMINI_MODEL: str = "gemini-flash-lite-latest"
     GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
 
