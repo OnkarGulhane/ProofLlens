@@ -33,3 +33,26 @@ async def cleanup_database_engine():
     yield
     from app.core.database import engine
     await engine.dispose()
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def cleanup_test_workspaces_after_session():
+    """Clean up any temporary test workspaces created during test runs."""
+    yield
+    from app.core.database import AsyncSessionLocal
+    from app.models.workspace import Workspace
+    from sqlalchemy import select
+    test_titles = {
+        "Single Doc Workspace", "Comparison Workspace", "Primary Retrieval Workspace",
+        "Abstention Workspace", "Q&A Pipeline Workspace", "Vector Persistence Workspace",
+        "Rejection Workspace", "Ingestion Integration Workspace", "Isolated Empty Workspace",
+        "Prompt Injection Defense Workspace"
+    }
+    try:
+        async with AsyncSessionLocal() as session:
+            res = await session.execute(select(Workspace).where(Workspace.title.in_(test_titles)))
+            for ws in res.scalars().all():
+                await session.delete(ws)
+            await session.commit()
+    except Exception:
+        pass
